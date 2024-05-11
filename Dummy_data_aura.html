@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador</title>
+    <style>
+      body {
+          font-family: Arial, sans-serif;
+          margin: 0;
+          padding: 0;
+          background-color: #f0f0f0;
+      }
+
+      .container {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          height: 100vh;
+          width: 80%;
+          margin: 0 auto;
+      }
+
+      h2, select, input, button {
+          margin-bottom: 20px;
+      }
+
+      button {
+          padding: 10px 20px;
+          background-color: rgb(53, 248, 255);
+          border: none;
+          color: white;
+          cursor: pointer;
+      }
+
+      button:hover {
+          background-color: #b050ff;
+      }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>¿Cuántos Usuarios va a Crear?</h2>
+    <input type="number" id="NumRegistros" required/>
+    <select name="opcion" id="usuario">
+        <option value="alumno">Alumnos</option>
+        <option value="academicos">Académicos</option>
+        <option value="administrativos">Administrativos</option>
+    </select>
+    <button onclick="generarAlumnos()">Generar registros en SQL</button>
+    <button onclick="generarArchivoSQL()">Generar archivo SQL</button>
+    <p id="salida"></p>
+</div>
+
+<script>
+    const apellidos = [
+        "García", "Fernández", "González", "López", "Martínez", "Rodríguez", "Pérez", "Sánchez", "Ramírez", "Torres",
+        "Suárez", "Díaz", "Vázquez", "Romero", "Alvarez", "Jiménez", "Ruiz", "Hernández", "Dominguez", "Moreno",
+        "Muñoz", "Rojas", "Navarro", "Santos", "Castillo", "Gómez", "Ortega", "Morales", "Delgado", "Castro",
+        "Ortiz", "Rubio", "Núñez", "Iglesias", "Gutiérrez", "Vidal", "Molina", "Garrido", "Marín", "Silva",
+        "Medina", "Serrano", "Cortés", "Peña", "Flores", "Aguilar", "Salas", "Arias", "Paz", "Esteban",
+        "Mendez", "Cruz", "Cabrera", "Benitez", "Fuentes", "Santiago", "Aguirre", "Vega", "Herrera", "Pardo",
+        "Bravo", "Franco", "Lara", "Vicente", "Sanchez", "Peralta", "Segura", "Ponce", "Guerrero", "Correa",
+        "Montes", "Ramos", "Arroyo", "Ibáñez", "Calderón", "Moya", "Quintero", "Miranda", "Palacios", "Valencia",
+        "Gallego", "Nieto", "Bermúdez", "Herrero", "Soto", "Soler", "Olivares", "Lucas", "Bernal", "Campos",
+        "Rosales", "Sáez", "Beltrán", "Villar", "Salazar", "Calvo", "Valle", "Otero", "León", "Pacheco",
+        "Álvarez", "Delgado", "Plaza", "Guerra", "Vallejo", "Pérez", "Álvarez", "Mora", "Vega", "Hidalgo",
+        "Vargas", "Roldán", "Sanchez", "Carmona", "Giménez", "Reyes", "Peña", "Arenas", "Cuesta", "Suarez",
+        "Cano", "Diez", "Redondo", "Aguado", "Coronado", "Ríos", "Montero", "Galán", "Espinosa", "Hidalgo",
+        "Ferrer", "Crespo", "Lorenzo", "Tejada", "Bueno", "Rey", "Marquez", "Vargas", "Gallardo", "Méndez",
+        "Cabello", "Camacho", "Bellido", "Lorenzo", "Molina", "Domínguez", "Bosch", "Carvajal", "Quintero", "Fernández"
+    ];
+    const apellidosPortugueses = [
+        "Silva", "Santos", "Ferreira", "Pereira", "Oliveira", "Costa", "Rodrigues", "Martins", "Jesus", "Sousa",
+        "Fernandes", "Gomes", "Marques", "Gonçalves", "Almeida", "Ribeiro", "Carvalho", "Teixeira", "Soares", "Alves",
+        "Pinto", "Mendes", "Moreira", "Dias", "Nunes", "Lopes", "Campos", "Coelho", "Morais", "Castro",
+        "Cardoso", "Pires", "Lourenço", "Mota", "Araújo", "Neves", "Reis", "Correia", "Cruz", "Machado",
+        "Barbosa", "Fonseca", "Azevedo", "Antunes", "Vieira", "Tavares", "Ramos", "Magalhães", "Henriques", "Barros",
+        "Figueiredo", "Garcia", "Ferreira", "Pereira", "Oliveira", "Costa", "Rodrigues", "Martins", "Jesus", "Sousa",
+        "Fernandes", "Gomes", "Marques", "Gonçalves", "Almeida", "Ribeiro", "Carvalho", "Teixeira", "Soares", "Alves",
+        "Pinto", "Mendes", "Moreira", "Dias", "Nunes", "Lopes", "Campos", "Coelho", "Morais", "Castro",
+        "Cardoso", "Pires", "Lourenço", "Mota", "Araújo", "Neves", "Reis", "Correia", "Cruz", "Machado",
+        "Barbosa", "Fonseca", "Azevedo", "Antunes", "Vieira", "Tavares", "Ramos", "Magalhães", "Henriques", "Barros",
+        "Figueiredo", "Garcia", "Rocha", "Duarte", "Freitas", "Barros", "Cunha", "Monteiro", "Faria", "Moura",
+        "Lima", "Batista", "Carneiro", "Gouveia", "Leal", "Vasconcelos", "Lemos", "Domingues", "Dantas", "Barreira",
+        "Brito", "Dias", "Vargas", "Veiga", "Afonso", "Leite", "Guimarães", "Bezerra", "Andrade", "Ferreira",
+        "Pereira", "Oliveira", "Costa", "Rodrigues", "Martins", "Jesus", "Sousa", "Fernandes", "Gomes", "Marques",
+        "Gonçalves", "Almeida", "Ribeiro", "Carvalho", "Teixeira", "Soares", "Alves", "Pinto", "Mendes", "Moreira",
+        "Dias", "Nunes", "Lopes", "Campos", "Coelho", "Morais", "Castro", "Cardoso", "Pires", "Lourenço",
+        "Mota", "Araújo", "Neves", "Reis", "Correia", "Cruz", "Machado", "Barbosa", "Fonseca", "Azevedo",
+        "Antunes", "Vieira", "Tavares", "Ramos", "Magalhães", "Henriques", "Barros", "Figueiredo", "Garcia", "Rocha",
+        "Duarte", "Freitas", "Barros", "Cunha", "Monteiro", "Faria", "Moura", "Lima", "Batista", "Carneiro",
+        "Gouveia", "Leal", "Vasconcelos", "Lemos", "Domingues", "Dantas", "Barreira", "Brito", "Dias", "Vargas",
+        "Veiga", "Afonso", "Leite", "Guimarães", "Bezerra", "Andrade"
+    ];
+    const nombresFranceses = [
+        "Gabriel", "Louis", "Adam", "Raphaël", "Arthur", "Jules", "Lucas", "Léo", "Hugo", "Maël",
+        "Liam", "Nathan", "Paul", "Sacha", "Tom", "Théo", "Maxime", "Timéo", "Ethan", "Noah",
+        "Antoine", "Axel", "Baptiste", "Simon", "Matéo", "Victor", "Enzo", "Gabin", "Noé", "Mathis",
+        "Evan", "Eden", "Benjamin", "Alexandre", "Gaspard", "Clément", "Rémi", "Eliott", "Justin", "Maxence",
+        "Valentin", "Léon", "Alexis", "Augustin", "Damien", "Bastien", "Benoît", "Lucien", "Oscar", "Pierre",
+        "Isaac", "Martin", "Charles", "Vincent", "Marius", "Jean", "Rayan", "André", "Dylan", "Quentin",
+        "Nicolas", "Romain", "Elias", "Théodore", "Matthieu", "Emile", "Nolan", "Louka", "Hector", "Joachim",
+        "Gustave", "Stanislas", "Léandre", "Félix", "Pablo", "Léopold", "Aurélien", "Yann", "Ismaël", "Rémy",
+        "Malo", "Max", "Alex", "Jean-Baptiste", "Axel", "Armand", "Gaël", "Robin", "Julien", "Renaud",
+        "Yoann", "Alexandre", "Timothée", "Raphaël", "Sylvain", "Benoît", "Vincent", "Sébastien", "Jérémy", "Lucas",
+        "Matthieu", "Anthony", "Thibault", "Antoine", "Xavier", "Fabien", "Nicolas", "Damien", "Julien", "Adrien",
+        "Jules", "Thomas", "Quentin", "Simon", "David", "Sacha", "Rémi", "Mickaël", "Paul", "Guillaume",
+        "Pierre", "Martin", "Alexis", "Tristan", "Aurélien", "Florian", "Valentin", "Nathan", "Baptiste", "Maxime",
+        "Benjamin", "Antonin", "Cédric", "Jordan", "Dylan", "Rémy", "Théo", "Léo", "Enzo", "Gautier",
+        "Mathieu", "Olivier", "Christopher", "Vincent", "Nicolas", "Jérémy", "Romain", "Jean", "Sébastien", "Frédéric",
+        "David", "Grégory", "Laurent", "Jean-François", "Guillaume", "Anthony", "Pierre", "Alexandre", "Christophe", "François",
+        "Thomas", "Julien", "Sylvain", "Michaël", "Maxime", "Stéphane", "Thibault", "Philippe", "Adrien", "Cyril",
+        "Damien", "Lucas", "Julian", "Mickaël", "Mathias", "Jonathan", "Samuel", "Xavier", "Raphaël", "Alexis"
+    ];
+    var nombresJaponeses = [
+        "Hiroshi", "Takahiro", "Akihiro", "Satoshi", "Kenji", "Takashi", "Kazuki", "Yusuke", "Haruto",
+        "Tatsuya", "Naoki", "Masashi", "Ryota", "Keita", "Shota", "Riku", "Ryosuke", "Yuta", "Daiki",
+        "Sho", "Shun", "Kaito", "Takeru", "Kota", "Koki", "Kosuke", "Hayato", "Shin",
+        "Ryuya", "Tsubasa", "Ren", "Sora", "Haruki", "Yuya", "Kazuya", "Ryo", "Yuma",
+        "Kento", "Yuki", "Taichi", "Ryoma", "Ryuki", "Sota", "Ryusei", "Kazuma", "Kaito", "Haru",
+        "Hikaru", "Noboru", "Shogo", "Shinji", "Shohei", "Soma", "Yusei", "Hideki",
+        "Kazuto", "Koji", "Makoto", "Yuma", "Hinata", "Yuto", "Shogo", "Tatsuki", "Shuto",
+        "Haruki", "Ryohei", "Kenta", "Ryuto", "Takumi", "Tatsuki", "Yuta", "Sho", "Haruma",
+        "Yudai", "Takuya", "Yuto", "Daichi", "Yuki", "Shuhei", "Yuya", "Yuto",
+        "Yuki", "Daiki", "Ryota", "Yusuke", "Toshiro", "Ryosuke", "Shunsuke", "Yudai"
+    ];
+    function generarFechaAleatoria() {
+        var año = Math.floor(Math.random() * (2022 - 2000 + 1)) + 2000;
+        var mes = Math.floor(Math.random() * 12) + 1;
+        var dia = Math.floor(Math.random() * 31) + 1;
+        var hora = Math.floor(Math.random() * 24);
+        var minuto = Math.floor(Math.random() * 60);
+        var segundo = Math.floor(Math.random() * 60);
+
+        // Crea el objeto Date con los valores aleatorios
+        var fechaAleatoria = new Date(año, mes - 1, dia, hora, minuto, segundo);
+
+        // Formatea la fecha en el formato deseado (Año-Mes-Día)
+        var fechaFormateada = fechaAleatoria.toISOString().split("T")[0];
+
+        return fechaFormateada;
+    }
+    function generarAlumnos() {
+
+        var numeroVentas = document.getElementById("NumRegistros").value;
+        var select = document.getElementById("usuario");
+        var opcion = select.options[select.selectedIndex].value;
+        var salida = ` CREATE DATABASE IF NOT EXISTS sistema_escolar;\n USE sistema_escolar;\n CREATE TABLE IF NOT EXISTS ${opcion} (\n expediente INT(11) UNSIGNED NOT NULL UNIQUE,\n apellido1 VARCHAR(255) NOT NULL,\n apellido2 VARCHAR(255),\n nombre VARCHAR(255) NOT NULL,\n correo_ins VARCHAR(50) NOT NULL UNIQUE\n, contraseña VARCHAR(100), fecha_nac DATE);\n INSERT INTO ${opcion} (expediente, apellido1, apellido2, nombre, correo_ins, contraseña, fecha_nac) VALUES \n`;
+        var matriculaAlumno = 222200017;
+        var matriculaAcademico = 777700020;
+        var matriculaAdmin = 999900020;
+
+        switch (opcion) {
+            case "alumno":
+                for (let i = 0; i < numeroVentas; i++) {
+                    salida += ` (${matriculaAlumno}, '${apellidos[Math.floor(Math.random() * apellidos.length)]}', 
+        '${apellidosPortugueses[Math.floor(Math.random() * apellidosPortugueses.length)]}', '${nombresJaponeses[Math.floor(Math.random() * nombresJaponeses.length)]} 
+        ${nombresFranceses[Math.floor(Math.random() * nombresFranceses.length)]}', '${matriculaAlumno++}@unison.mx', MD5('123'), '+ generarFechaAleatoria()+' ),`;
+
+                    if (i == numeroVentas - 1) {
+                        salida = salida.slice(0, -1) + ";"; // Eliminar la coma y agregar punto y coma
+                    }
+
+                    salida += " \n";
+                }
+                break;
+
+            case "academicos":
+                for (let i = 0; i < numeroVentas; i++) {
+                    salida += ` (${matriculaAcademico}, '${apellidos[Math.floor(Math.random() * apellidos.length)]}', 
+          '${apellidosPortugueses[Math.floor(Math.random() * apellidosPortugueses.length)]}', '${nombresJaponeses[Math.floor(Math.random() * nombresJaponeses.length)]} 
+          ${nombresFranceses[Math.floor(Math.random() * nombresFranceses.length)]}', '${matriculaAcademico++}@acadunison.mx', MD5('123'), '+ generarFechaAleatoria()+' ),`;
+
+                    if (i == numeroVentas - 1) {
+                        salida = salida.slice(0, -1) + ";"; // Eliminar la coma y agregar punto y coma
+                    }
+
+                    salida += " \n";
+                }
+                break;
+
+            case "administrativos":
+                for (let i = 0; i < numeroVentas; i++) {
+                    salida += ` (${matriculaAdmin}, '${apellidos[Math.floor(Math.random() * apellidos.length)]}', 
+          '${apellidosPortugueses[Math.floor(Math.random() * apellidosPortugueses.length)]}', '${nombresJaponeses[Math.floor(Math.random() * nombresJaponeses.length)]} 
+          ${nombresFranceses[Math.floor(Math.random() * nombresFranceses.length)]}', '${matriculaAdmin++}@adminunison.mx', MD5('123'), '+ generarFechaAleatoria()+' ),`;
+
+                    if (i == numeroVentas - 1) {
+                        salida = salida.slice(0, -1) + ";"; // Eliminar la coma y agregar punto y coma
+                    }
+
+                    salida += " \n";
+                }
+                break;
+
+        }
+
+        document.getElementById("salida").innerText = salida;
+    }
+    function generarArchivoSQL() {
+        var contenidoSQL = document.getElementById("salida").innerText;
+        var blob = new Blob([contenidoSQL], { type: "text/plain" });
+        var url = window.URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = "registros.sql";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    }
+</script>
+</head>
+<body>
+<div class="container">
+    <h2>¿Cuántos Usuarios va a Crear?</h2>
+    <input type="number" id="NumRegistros" required/>
+    <select name="opcion" id="usuario">
+        <option value="alumno">Alumnos</option>
+        <option value="academicos">Académicos</option>
+        <option value="administrativos">Administrativos</option>
+    </select>
+    <button onclick="generarAlumnos()">Generar registros en SQL</button>
+    <button onclick="generarArchivoSQL()">Generar archivo SQL</button>
+    <p id="salida"></p>
+</div>
+</body>
+</html>
